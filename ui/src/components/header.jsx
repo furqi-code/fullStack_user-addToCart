@@ -1,11 +1,12 @@
 import { useContext } from "react";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { ProductContext } from "../store/productContext";
 
 export function Header() {
-  const { handlePageProducts, showSelectedPage, wishlist } =
-    useContext(ProductContext);
+  const { wishlist } = useContext(ProductContext);
+  const navigate = useNavigate();
   const isLoggedin = localStorage.getItem("userDetail");
+  
   let totalCartItem = 0;
   wishlist.forEach((item) => {
     totalCartItem += item.quantity;
@@ -42,6 +43,17 @@ export function Header() {
             >
               General
             </Link>
+            {isLoggedin && (
+              <button
+                className="text-gray-700 hover:text-slate-800 transition-colors"
+                onClick={() => {
+                  localStorage.removeItem("userDetail");
+                  navigate("/");
+                }}
+              >
+                Logout
+              </button>
+            )}
             {!isLoggedin && (
               <Link
                 to="/addItem"

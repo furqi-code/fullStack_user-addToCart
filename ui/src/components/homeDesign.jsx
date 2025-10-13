@@ -1,4 +1,14 @@
+import { useState } from "react";
+import { SignupDialog } from "./signupDialog";
+import { SigninDialog } from "./signinDialog";
+import { ForgotPassDialog } from "./forgotPassworDialog";
+
 export function HomeDesign() {
+  const isLoggedin = localStorage.getItem("userDetail");
+  const [signupDialog, showSignupDialog] = useState(false);
+  const [signinDialog, showSigninDialog] = useState(false);
+  const [forgotPassDialog, showforgotPassDialog] = useState(false);
+
   return (
     <>
       <main className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 py-10">
@@ -11,9 +21,48 @@ export function HomeDesign() {
             Discover quality products across categories with world-class
             service.
           </p>
-          <button className="px-10 py-3 bg-indigo-600 text-white font-semibold rounded-md shadow-lg hover:bg-indigo-700 focus:outline-none focus:ring-4 focus:ring-indigo-300 transition">
-            Start Shopping
-          </button>
+          {isLoggedin ? (
+            <button className="px-10 py-3 bg-indigo-600 text-white font-semibold rounded-md shadow-lg hover:bg-indigo-700 focus:outline-none focus:ring-4 focus:ring-indigo-300 transition">
+              Start Shopping
+            </button>
+          ) : (
+            <>
+              <button
+                type="button"
+                class="rounded-md bg-slate-800 py-3 px-8 border border-transparent text-center text-lg text-white transition-all shadow-md hover:shadow-lg focus:bg-slate-700 focus:shadow-none active:bg-slate-700 hover:bg-slate-700 active:shadow-none disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none cursor-pointer"
+                onClick={() => showSignupDialog(true)}
+              >
+                Sign up
+              </button>
+              {signupDialog && (
+                <SignupDialog
+                  showSigninDialog={showSigninDialog}
+                  showSignupDialog={showSignupDialog}
+                />
+              )}
+              <button
+                type="button"
+                class="rounded-md bg-slate-800 py-3 px-8 border border-transparent text-center text-lg text-white transition-all shadow-md hover:shadow-lg focus:bg-slate-700 focus:shadow-none active:bg-slate-700 hover:bg-slate-700 active:shadow-none disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none ml-4 cursor-pointer"
+                onClick={() => showSigninDialog(true)}
+              >
+                Login
+              </button>
+              {signinDialog && (
+                <SigninDialog
+                  showSignupDialog={showSignupDialog}
+                  showSigninDialog={showSigninDialog}
+                  showforgotPassDialog={showforgotPassDialog}
+                />
+              )}
+              {/* this btn inside login diagnol */}
+              {forgotPassDialog && (
+                <ForgotPassDialog
+                  showforgotPassDialog={showforgotPassDialog}
+                  showSigninDialog={showSigninDialog}
+                />
+              )}
+            </>
+          )}
         </section>
 
         {/* Categories Section */}
