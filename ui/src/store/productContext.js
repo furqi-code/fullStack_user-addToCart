@@ -1,9 +1,11 @@
 import axios from "axios";
-import { useReducer, createContext, useEffect } from "react";
+import { useReducer, createContext } from "react";
 
 export const ProductContext = createContext({
   productList: [],
   wishlist: [],
+  setIsLoggedin: () => {},
+  isLoggedin: undefined,
   handlePageProducts: () => {},
   addToCart: () => {},
   removefromCart: () => {},
@@ -18,6 +20,12 @@ function reducer(state, action) {
       return {
         ...state,
         productList: action.products,
+      };
+
+    case "SET_LOGGED_IN":
+      return {
+        ...state,
+        isLoggedin: action.status,
       };
 
     case "collectItems":
@@ -89,8 +97,16 @@ export function ProductContextProvider({ children }) {
   const [flipkart, dispatch] = useReducer(reducer, {
     productList: [], // calling api to get productList
     wishlist: [],
+    isLoggedin: localStorage.getItem("userDetail") ? true : false,
   });
   console.log("wishlist Array \n", flipkart.wishlist);
+
+  const setIsLoggedin = (status) => {
+    dispatch({
+      type: "SET_LOGGED_IN",
+      status, // true or false
+    });
+  };
 
   const collectItems = (id) => {
     let selectedItem = flipkart.productList.find(
@@ -136,14 +152,14 @@ export function ProductContextProvider({ children }) {
         product,
       },
     })
-    .then((response) => {
-      console.log("Product added:", response.data);
-      // showSelectedPage(product.category); // not rendering that particular page
-    })
-    .catch((err) => {
-      console.log(`couldnt insert this product ${product.name}`, err);
-    });
-  }
+      .then((response) => {
+        console.log("Product added:", response.data);
+        // showSelectedPage(product.category); // not rendering that particular page
+      })
+      .catch((err) => {
+        console.log(`couldnt insert this product ${product.name}`, err);
+      });
+  };
 
   const handlePageProducts = (category) => {
     axios({
@@ -153,15 +169,15 @@ export function ProductContextProvider({ children }) {
         category,
       },
     })
-    .then((response) => {
-      dispatch({
-        type: "getProductList",
-        products: response.data,
+      .then((response) => {
+        dispatch({
+          type: "getProductList",
+          products: response.data,
+        });
+      })
+      .catch((err) => {
+        console.log(`couldnt get products of ${category} page`, err);
       });
-    })
-    .catch((err) => {
-      console.log(`couldnt get products of ${category} page`, err);
-    });
   };
 
   return (
@@ -169,6 +185,8 @@ export function ProductContextProvider({ children }) {
       value={{
         productList: flipkart.productList,
         wishlist: flipkart.wishlist,
+        isLoggedin: flipkart.isLoggedin,
+        setIsLoggedin: setIsLoggedin,
         handlePageProducts: handlePageProducts,
         addToCart: collectItems,
         removefromCart: removeBagItem,

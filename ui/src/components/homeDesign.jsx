@@ -1,13 +1,14 @@
-import { useState } from "react";
+import { useState, useContext } from "react";
 import { SignupDialog } from "./signupDialog";
 import { SigninDialog } from "./signinDialog";
 import { ForgotPassDialog } from "./forgotPassworDialog";
+import { ProductContext } from "../store/productContext";
 
 export function HomeDesign() {
-  const isLoggedin = localStorage.getItem("userDetail");
   const [signupDialog, showSignupDialog] = useState(false);
   const [signinDialog, showSigninDialog] = useState(false);
   const [forgotPassDialog, showforgotPassDialog] = useState(false);
+  const { isLoggedin } = useContext(ProductContext);
 
   return (
     <>

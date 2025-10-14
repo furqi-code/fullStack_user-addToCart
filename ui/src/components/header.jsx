@@ -3,9 +3,10 @@ import { Link, useNavigate } from "react-router";
 import { ProductContext } from "../store/productContext";
 
 export function Header() {
-  const { wishlist } = useContext(ProductContext);
+  const { wishlist, isLoggedin, setIsLoggedin } = useContext(ProductContext);
   const navigate = useNavigate();
-  const isLoggedin = localStorage.getItem("userDetail");
+  // isLoggedin state HomeDesign sibling component me bhi use ho rha tha & i cant share the state there
+  // so i had to lift the state Up and stored it in context
   
   let totalCartItem = 0;
   wishlist.forEach((item) => {
@@ -45,9 +46,10 @@ export function Header() {
             </Link>
             {isLoggedin && (
               <button
-                className="text-gray-700 hover:text-slate-800 transition-colors"
+                className="text-gray-700 hover:text-slate-800 transition-colors cursor-pointer"
                 onClick={() => {
                   localStorage.removeItem("userDetail");
+                  setIsLoggedin(false);
                   navigate("/");
                 }}
               >

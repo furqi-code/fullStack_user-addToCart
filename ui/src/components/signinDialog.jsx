@@ -1,8 +1,10 @@
-import { useRef, useState } from "react";
+import { useRef, useState, useContext } from "react";
 import { useNavigate } from "react-router";
+import { ProductContext } from "../store/productContext";
 import axios from "axios";
 
 export function SigninDialog({ showSignupDialog, showSigninDialog, showforgotPassDialog }) {
+  const { setIsLoggedin } = useContext(ProductContext);
   const emailRef = useRef();
   const passwordRef = useRef();
   const [error, setError] = useState("");
@@ -18,16 +20,19 @@ export function SigninDialog({ showSignupDialog, showSigninDialog, showforgotPas
 
     axios({
       method: "POST",
-      url: "http://localhost:1111/signup",
+      url: "http://localhost:1111/login",
       data: {
         email,
         password,
       },
     })
       .then((res) => {
-        setSuccess("Login successful. Redirecting to showTask...");
+        setSuccess("Login successful. Redirecting to home page...");
         localStorage.setItem("userDetail", res.data.token);
-        setTimeout(() => navigate("/"), 2000);
+        setTimeout(() => {
+          showSigninDialog(false);
+          setIsLoggedin(true);
+          navigate("/")}, 2000);
       })
       .catch(() => {
         setError("Invalid Email / Password");
