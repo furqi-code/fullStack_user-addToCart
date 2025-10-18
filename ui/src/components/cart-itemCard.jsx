@@ -21,8 +21,8 @@ export function CartItem({ ...product }) {
           <div class="quantity" style={{ width: "90px" }}>
             <button
               className="myBtn"
-              onClick={() => {
-                decreaseQnty(product.id);
+              onClick={async () => {
+                await decreaseQnty(product.product_id);
                 // if (quantity == 1) {
                 //   removefromCart(product.id);
                 // } else {
@@ -49,8 +49,8 @@ export function CartItem({ ...product }) {
             <label>{product.quantity}</label>
             <button
               className="myBtn"
-              onClick={() => {
-                increaseQnty(product.id);
+              onClick={async () => {
+                await increaseQnty(product.product_id);
                 // if (quantity < product.stock) {
                 //   setQuantity(++quantity);
                 // } else {
@@ -106,7 +106,7 @@ export function CartItem({ ...product }) {
               ${bill.toFixed(2)}
             </span>
           </p>
-          <button className="myBtn" onClick={() => removefromCart(product.id)}>
+          <button className="myBtn" onClick={async () =>  await removefromCart(product.product_id)}>
             <img
               src="https://png.pngtree.com/png-clipart/20210310/original/pngtree-silver-trash-bin-clipart-png-image_5947991.jpg"
               alt="Trash"

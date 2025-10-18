@@ -6,86 +6,34 @@ export const ProductContext = createContext({
   wishlist: [],
   setIsLoggedin: () => {},
   isLoggedin: undefined,
-  handlePageProducts: () => {},
+  getProductList: () => {},
   addToCart: () => {},
   removefromCart: () => {},
   increaseQnty: () => {},
   decreaseQnty: () => {},
   addItem: () => {},
+  getWishList: () => {},
+  setWishList: () => {},
 });
 
 function reducer(state, action) {
   switch (action.type) {
+    case "activeUser":
+      return {
+        ...state,
+        isLoggedin: action.status,
+      };
+
     case "getProductList":
       return {
         ...state,
         productList: action.products,
       };
 
-    case "SET_LOGGED_IN":
+    case "getWishlist":
       return {
         ...state,
-        isLoggedin: action.status,
-      };
-
-    case "collectItems":
-      return {
-        ...state,
-        wishlist: [...state.wishlist, action.selectedItem],
-      };
-
-    case "showSelectedPage":
-      return {
-        ...state,
-        showCurrentPage: action.showPage,
-      };
-
-    case "removeBagItem":
-      return {
-        ...state,
-        wishlist: state.wishlist.filter(
-          (item) => item.id !== action.product_id
-        ),
-      };
-
-    case "increaseQnty":
-      return {
-        ...state,
-        wishlist: state.wishlist.map((item) => {
-          if (item.id === action.product_id) {
-            if (item.quantity < item.stock) {
-              return { ...item, quantity: item.quantity + 1 };
-            } else {
-              alert(
-                "We are out of Stock for " +
-                  `${item.name}`.toUpperCase() +
-                  " item"
-              );
-              return item;
-            }
-          } else {
-            return item;
-          }
-        }),
-      };
-
-    case "decreaseQnty":
-      const updatedWishlist = state.wishlist
-        .map((item) => {
-          if (item.id === action.product_id) {
-            if (item.quantity === 1) {
-              return null;
-            } else {
-              return { ...item, quantity: item.quantity - 1 };
-            }
-          }
-          return item;
-        })
-        .filter((item) => item !== null);
-
-      return {
-        ...state,
-        wishlist: updatedWishlist,
+        wishlist: action.wishlist,
       };
 
     default:
@@ -95,73 +43,27 @@ function reducer(state, action) {
 
 export function ProductContextProvider({ children }) {
   const [flipkart, dispatch] = useReducer(reducer, {
-    productList: [], // calling api to get productList
-    wishlist: [],
+    productList: [], // from DB to get productList
+    wishlist: [], // from DB to get user's wishlist
     isLoggedin: localStorage.getItem("userDetail") ? true : false,
   });
   console.log("wishlist Array \n", flipkart.wishlist);
 
   const setIsLoggedin = (status) => {
     dispatch({
-      type: "SET_LOGGED_IN",
+      type: "activeUser",
       status, // true or false
     });
   };
 
-  const collectItems = (id) => {
-    let selectedItem = flipkart.productList.find(
-      (product) => product.id === id
-    );
-    let alreadyinBag = flipkart.wishlist.find(
-      (items) => items.id === selectedItem.id
-    );
-    if (!alreadyinBag) {
-      dispatch({
-        type: "collectItems",
-        selectedItem,
-      });
-    }
-  };
-
-  const removeBagItem = (product_id) => {
+  const setWishList = (emptyArr) => {
     dispatch({
-      type: "removeBagItem",
-      product_id,
+      type: "getWishlist",
+      wishlist: [...emptyArr],
     });
   };
 
-  const increaseQnty = (product_id) => {
-    dispatch({
-      type: "increaseQnty",
-      product_id,
-    });
-  };
-
-  const decreaseQnty = (product_id) => {
-    dispatch({
-      type: "decreaseQnty",
-      product_id,
-    });
-  };
-
-  const addItem = (product) => {
-    axios({
-      method: "POST",
-      url: "http://localhost:1111/products",
-      data: {
-        product,
-      },
-    })
-      .then((response) => {
-        console.log("Product added:", response.data);
-        // showSelectedPage(product.category); // not rendering that particular page
-      })
-      .catch((err) => {
-        console.log(`couldnt insert this product ${product.name}`, err);
-      });
-  };
-
-  const handlePageProducts = (category) => {
+  const getProductList = (category) => {
     axios({
       method: "GET",
       url: "http://localhost:1111/products",
@@ -180,19 +82,150 @@ export function ProductContextProvider({ children }) {
       });
   };
 
+  const getWishList = () => {
+    axios({
+      method: "GET",
+      url: "http://localhost:1111/wishlist",
+      headers: {
+        Authorization: localStorage.getItem("userDetail"),
+      },
+    })
+      .then((getResponse) => {
+        dispatch({
+          type: "getWishlist",
+          wishlist: getResponse.data,
+        });
+      })
+      .catch((error) => {
+        console.error("Error fetching wishlist:", error);
+      });
+  };
+
+  const addItem = (product) => {
+    // (Admin) already inserted some products through mySql db 
+    axios({
+      method: "POST",
+      url: "http://localhost:1111/products",
+      data: {
+        product,
+      },
+    })
+      .then((response) => {
+        console.log("Product added:", response.data);
+      })
+      .catch((err) => {
+        console.log(`couldnt insert this product ${product.name}`, err);
+      });
+  };
+
+  const collectItems = async (product_id) => {
+    try {
+      if (flipkart.isLoggedin) {
+        const addToCartResponse = await axios({
+          method: "POST",
+          url: "http://localhost:1111/wishlist",
+          headers: {
+            Authorization: localStorage.getItem("userDetail"),
+          },
+          params: {
+            product_id,
+          },
+        });
+        console.log("Product added in your Cart:", addToCartResponse.data);
+        await getWishList();
+      } else {
+        alert("Kindly Login to add item in your cart");
+      }
+    } catch (err) {
+      console.log(`couldnt insert this product in wishlist`, err);
+    }
+  };
+
+  const removeBagItem = async (product_id) => {
+    try {
+      if (flipkart.isLoggedin) {
+        const addToCartResponse = await axios({
+          method: "DELETE",
+          url: "http://localhost:1111/wishlist/eliminate",
+          headers: {
+            Authorization: localStorage.getItem("userDetail"),
+          },
+          params: {
+            product_id,
+          },
+        });
+        console.log(addToCartResponse.data);
+        await getWishList();
+      } else {
+        alert("Kindly Login to delete item in your cart");
+      }
+    } catch (err) {
+      console.log(`couldnt delete this product from wishlist`, err);
+    }
+  };
+
+  const increaseQnty = async (product_id) => {
+    try {
+      if (flipkart.isLoggedin) {
+        const addToCartResponse = await axios({
+          method: "PATCH",
+          url: "http://localhost:1111/wishlist/increase",
+          headers: {
+            Authorization: localStorage.getItem("userDetail"),
+          },
+          params: {
+            product_id,
+          },
+        });
+        console.log(addToCartResponse.data);
+        await getWishList();
+      } else {
+        alert("Kindly Login to increase item in your cart");
+      }
+    } catch (err) {
+      console.log(`Error while increase Qnty`, err);
+      alert(err.response.data.message)
+    }
+  };
+
+  const decreaseQnty = async (product_id) => {
+    try {
+      if (flipkart.isLoggedin) {
+        const addToCartResponse = await axios({
+          method: "PATCH",
+          url: "http://localhost:1111/wishlist/decrease",
+          headers: {
+            Authorization: localStorage.getItem("userDetail"),
+          },
+          params: {
+            product_id,
+          },
+        });
+        console.log(addToCartResponse.data);
+        await getWishList();
+      } else {
+        alert("Kindly Login to decrease item in your cart");
+      }
+    } catch (err) {
+      console.log(`couldnt decrease the quantity of this product`, err);
+    }
+  };
+
   return (
     <ProductContext
       value={{
         productList: flipkart.productList,
         wishlist: flipkart.wishlist,
         isLoggedin: flipkart.isLoggedin,
-        setIsLoggedin: setIsLoggedin,
-        handlePageProducts: handlePageProducts,
+        setIsLoggedin,
+        setWishList,  // logout --> wishlist[]
+        getProductList,
+        getWishList,
+        addItem,
         addToCart: collectItems,
         removefromCart: removeBagItem,
-        increaseQnty: increaseQnty,
-        decreaseQnty: decreaseQnty,
-        addItem: addItem,
+        increaseQnty,
+        decreaseQnty,
       }}
     >
       {children}

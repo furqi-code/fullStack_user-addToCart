@@ -1,11 +1,11 @@
-import { useContext, useState } from "react";
+import { useContext } from "react";
 import { ProductContext } from "../store/productContext";
 
-export function Card({ id, name, description, MRP, img }) {
-  const [isAddingtoCart, setIsAddingtoCart] = useState(false);
-  const { addToCart, increaseQnty, decreaseQnty, wishlist } = useContext(ProductContext);
+export function Card({ product_id, name, description, MRP, img }) {
+  const { addToCart, increaseQnty, decreaseQnty, wishlist } =
+    useContext(ProductContext);
   const addedCartItem = wishlist.find((item) => {
-    if (item.id === id) {
+    if (item.product_id === product_id) {
       return item;
     }
   });
@@ -24,12 +24,11 @@ export function Card({ id, name, description, MRP, img }) {
         <div class="card-price">
           <span>$</span> {MRP.toFixed(2)}
         </div>
-        {isAddingtoCart === false ? (
+        {!addedCartItem ? (
           <button
             class="card-btn myBtn"
-            onClick={() => {
-              addToCart(id);
-              setIsAddingtoCart(true);
+            onClick={async () => {
+              await addToCart(product_id);
             }}
           >
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
@@ -43,14 +42,8 @@ export function Card({ id, name, description, MRP, img }) {
           <div class="quantity" style={{ width: "90px" }}>
             <button
               className="myBtn"
-              onClick={() => {
-                decreaseQnty(id);
-                // state pehle update hojata h lekin re-render nhi hota and we never re-assign quantity to zero
-                // instead removing the cart item from the wishlist isiliye ( === 0) condition work nhi krrha tha
-                if (addedCartItem.quantity <= 1) {
-                  console.log("state false krdo");
-                  setIsAddingtoCart(false);
-                }
+              onClick={async () => {
+                await decreaseQnty(product_id);
               }}
             >
               <svg
@@ -72,8 +65,8 @@ export function Card({ id, name, description, MRP, img }) {
             <label>{addedCartItem.quantity}</label>
             <button
               className="myBtn"
-              onClick={() => {
-                increaseQnty(id);
+              onClick={async () => {
+                await increaseQnty(product_id);
               }}
             >
               <svg

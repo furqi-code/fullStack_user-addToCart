@@ -1,20 +1,28 @@
 import { CartItem } from "./cart-itemCard";
-import { useContext } from "react";
+import { useEffect, useContext } from "react";
 import { ProductContext } from "../store/productContext";
+import { Link } from "react-router";
 
 export function ShowBag() {
-  const { wishlist, showSelectedPage } = useContext(ProductContext);
+  const { getWishList, isLoggedin } = useContext(ProductContext);
+  useEffect(() => {
+    if(isLoggedin){
+      getWishList();
+    }
+  }, []);
+
+  const { wishlist } = useContext(ProductContext);
   if (wishlist.length === 0) {
     return (
       <>
         {/* <div className="flex justify-center" style={{ width: "700px" }}>
-          <button className="myBtn" onClick={() => showSelectedPage("homePage")}>
+          <Link to='/' className="myBtn" >
             <img
               src="https://cdn-icons-png.flaticon.com/512/9312/9312240.png"
               alt=""
               className="h-12"
             />
-          </button>
+          </Link>
         </div> */}
         <div className="flex justify-center items-center">
           <div
@@ -71,29 +79,10 @@ export function ShowBag() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-      {/* <div className="flex items-center justify-between">
-        <div>
-          <button className="myBtn" onClick={() => showSelectedPage("homePage")}>
-            <img
-              src="https://cdn-icons-png.flaticon.com/512/9312/9312240.png"
-              alt="Back"
-              className="h-12"
-            />
-          </button>
-        </div>
-        <div className="flex-grow text-center">
-          <h3 className="text-lg font-small">
-            Your Bag has {wishlist.length} item
-            {wishlist.length !== 1 ? "s" : ""}
-          </h3>
-        </div>
-        <div style={{ width: "48px" }}></div>   
-      </div> */}
-
       <div className="flex justify-between gap-12 mt-6">
         <div className="flex-grow max-w-3xl">
           {wishlist.map((product) => {
-            return <CartItem {...product} key={product.id}></CartItem>;
+            return <CartItem {...product} key={product.product_id}></CartItem>;
           })}
         </div>
 

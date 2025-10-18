@@ -1,13 +1,20 @@
-import { useContext } from "react";
+import { useEffect, useContext } from "react";
 import { Link, useNavigate } from "react-router";
 import { ProductContext } from "../store/productContext";
 
 export function Header() {
-  const { wishlist, isLoggedin, setIsLoggedin } = useContext(ProductContext);
+  const { wishlist, getWishList, isLoggedin, setIsLoggedin, setWishList } =
+    useContext(ProductContext);
   const navigate = useNavigate();
-  // isLoggedin state HomeDesign sibling component me bhi use ho rha tha & i cant share the state there
+  useEffect(() => { 
+    // after login header re-render nhi ho rha, reload krna pd rha
+    if (isLoggedin) {
+      getWishList();
+    }
+  }, []);
+  // isLoggedin state HomeDesign and other sibling components me bhi use ho rha tha & i cant share the state there
   // so i had to lift the state Up and stored it in context
-  
+
   let totalCartItem = 0;
   wishlist.forEach((item) => {
     totalCartItem += item.quantity;
@@ -50,6 +57,7 @@ export function Header() {
                 onClick={() => {
                   localStorage.removeItem("userDetail");
                   setIsLoggedin(false);
+                  setWishList([]); // array empty krde
                   navigate("/");
                 }}
               >

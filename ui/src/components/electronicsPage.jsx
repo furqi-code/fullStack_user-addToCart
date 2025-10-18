@@ -1,19 +1,26 @@
 import { Card } from "./productCard";
 import { useContext, useEffect } from "react";
-import { ProductContext } from "../store/productContext"
+import { ProductContext } from "../store/productContext";
 import { Link } from "react-router";
 
 export function ElectronicsProds() {
-  const { productList, handlePageProducts } = useContext(ProductContext);
+  const { productList, getWishList, isLoggedin, getProductList } =
+    useContext(ProductContext);
 
   useEffect(() => {
-      handlePageProducts('Electronics') ;
-    },[])
+    getProductList("Electronics");
+    if (isLoggedin) {
+      getWishList();
+    }
+  }, []);
 
   return (
     <>
-      <div className="flex justify-center items-center mb-4" style={{ width: "355px" }}>
-        <Link to='/' className="myBtn">
+      <div
+        className="flex justify-center items-center mb-4"
+        style={{ width: "355px" }}
+      >
+        <Link to="/" className="myBtn">
           <img
             src="https://cdn-icons-png.flaticon.com/512/9312/9312240.png"
             alt=""

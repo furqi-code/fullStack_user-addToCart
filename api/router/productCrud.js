@@ -1,5 +1,5 @@
 const express = require('express');
-const Router = express();
+const Router = express.Router();
 const { executeQuery } = require("../mySqldb/Query");
 
 Router.get("/", async (req, res) => {

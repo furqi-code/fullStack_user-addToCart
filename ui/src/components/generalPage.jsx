@@ -4,16 +4,23 @@ import { ProductContext } from "../store/productContext";
 import { Link } from "react-router";
 
 export function GeneralProducts() {
-  const { productList, handlePageProducts } = useContext(ProductContext);
+  const { productList, getWishList, getProductList, isLoggedin } =
+    useContext(ProductContext);
 
   useEffect(() => {
-      handlePageProducts('General') 
-    },[])
-    
+    getProductList("General");
+    if (isLoggedin) {
+      getWishList();
+    }
+  }, []);
+
   return (
     <>
-      <div className="flex justify-center items-center mb-4" style={{ width: "355px" }}>
-        <Link to='/' className="myBtn">
+      <div
+        className="flex justify-center items-center mb-4"
+        style={{ width: "355px" }}
+      >
+        <Link to="/" className="myBtn">
           <img
             src="https://cdn-icons-png.flaticon.com/512/9312/9312240.png"
             alt=""
