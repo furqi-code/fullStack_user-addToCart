@@ -1,18 +1,31 @@
 import { Card } from "./productCard";
-import { useContext, useEffect } from "react";
+import { useContext, useEffect, useState } from "react";
 import { ProductContext } from "../store/productContext";
 import { Link } from "react-router";
+import axios from "axios";
 
 export function GeneralProducts() {
-  const { productList, getWishList, getProductList, isLoggedin } =
-    useContext(ProductContext);
+  const { getWishList, isLoggedin } = useContext(ProductContext);
+  const [productList, setProductlist] = useState([]);
 
   useEffect(() => {
-    getProductList("General");
+    axios({
+      method: "GET",
+      url: "http://localhost:1111/products",
+      params: {
+        category: 'General',
+      },
+    })
+      .then((res) => {
+        setProductlist(res.data);
+      })
+      .catch((err) => {
+        console.log(`couldnt get products of ${category} page`, err);
+      });
     if (isLoggedin) {
       getWishList();
     }
-  }, []);
+  }, []); 
 
   return (
     <>

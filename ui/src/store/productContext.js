@@ -2,11 +2,9 @@ import axios from "axios";
 import { useReducer, createContext } from "react";
 
 export const ProductContext = createContext({
-  productList: [],
   wishlist: [],
   setIsLoggedin: () => {},
   isLoggedin: undefined,
-  getProductList: () => {},
   addToCart: () => {},
   removefromCart: () => {},
   increaseQnty: () => {},
@@ -24,12 +22,6 @@ function reducer(state, action) {
         isLoggedin: action.status,
       };
 
-    case "getProductList":
-      return {
-        ...state,
-        productList: action.products,
-      };
-
     case "getWishlist":
       return {
         ...state,
@@ -43,7 +35,6 @@ function reducer(state, action) {
 
 export function ProductContextProvider({ children }) {
   const [flipkart, dispatch] = useReducer(reducer, {
-    productList: [], // from DB to get productList
     wishlist: [], // from DB to get user's wishlist
     isLoggedin: localStorage.getItem("userDetail") ? true : false,
   });
@@ -61,25 +52,6 @@ export function ProductContextProvider({ children }) {
       type: "getWishlist",
       wishlist: [...emptyArr],
     });
-  };
-
-  const getProductList = (category) => {
-    axios({
-      method: "GET",
-      url: "http://localhost:1111/products",
-      params: {
-        category,
-      },
-    })
-      .then((response) => {
-        dispatch({
-          type: "getProductList",
-          products: response.data,
-        });
-      })
-      .catch((err) => {
-        console.log(`couldnt get products of ${category} page`, err);
-      });
   };
 
   const getWishList = () => {
@@ -214,12 +186,10 @@ export function ProductContextProvider({ children }) {
   return (
     <ProductContext
       value={{
-        productList: flipkart.productList,
         wishlist: flipkart.wishlist,
         isLoggedin: flipkart.isLoggedin,
         setIsLoggedin,
         setWishList,  // logout --> wishlist[]
-        getProductList,
         getWishList,
         addItem,
         addToCart: collectItems,
