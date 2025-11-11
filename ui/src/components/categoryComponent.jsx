@@ -1,9 +1,11 @@
 import { Card } from "./productCard";
-import { Link } from "react-router";
+import { Link, useParams, useSearchParams } from "react-router";
 import { useProductslist } from "../hooks/useProductlist";
 
-export function SportsProducts() {
-  const productList = useProductslist([], 'Sports');  
+export function CategoryComponent() {
+  const { categoryName } = useParams();
+  console.log("category page: ", categoryName);
+  const productList = useProductslist([], categoryName);
 
   return (
     <>
@@ -22,8 +24,10 @@ export function SportsProducts() {
       <div className="flex justify-center align-center">
         <div class="grid grid-cols-4 gap-4">
           {productList.map((products) => (
-            <div className="p-4">
-              <Card {...products} />
+            <div key={products.product_id}  className="p-4">
+              <Link to={`/${categoryName}/${products.product_id}`}>
+                <Card  {...products} />
+              </Link>
             </div>
           ))}
         </div>

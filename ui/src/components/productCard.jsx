@@ -27,7 +27,9 @@ export function Card({ product_id, name, description, MRP, img }) {
         {!addedCartItem ? (
           <button
             class="card-btn myBtn"
-            onClick={async () => {
+            onClick={async (e) => {
+              e.preventDefault(); // Prevent Link navigation
+              e.stopPropagation(); // Prevent parent handlers (if any)
               await addToCart(product_id);
             }}
           >
@@ -42,7 +44,9 @@ export function Card({ product_id, name, description, MRP, img }) {
           <div class="quantity" style={{ width: "90px" }}>
             <button
               className="myBtn"
-              onClick={async () => {
+              onClick={async (e) => {
+                e.preventDefault(); // Prevent Link navigation
+                e.stopPropagation(); // Prevent parent handlers (if any)
                 await decreaseQnty(product_id);
               }}
             >
@@ -65,7 +69,9 @@ export function Card({ product_id, name, description, MRP, img }) {
             <label>{addedCartItem.quantity}</label>
             <button
               className="myBtn"
-              onClick={async () => {
+              onClick={async (e) => {
+                e.preventDefault(); // Prevent Link navigation
+                e.stopPropagation(); // Prevent parent handlers (if any)
                 await increaseQnty(product_id);
               }}
             >

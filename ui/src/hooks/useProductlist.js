@@ -23,7 +23,7 @@ export function useProductslist(initialState, category) {
     if (isLoggedin) {
       getWishList();
     }
-  }, []);
+  }, [category]);
 
   return productList;
 }
